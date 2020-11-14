@@ -15,7 +15,6 @@ func TestFetchRSS(t *testing.T) {
 	fp := gofeed.NewParser()
 
 	rss := internal.RSS{}
-
 	feed, err := rss.FetchURL(fp, url)
 
 	if err != nil {
@@ -28,8 +27,18 @@ func TestFetchRSS(t *testing.T) {
 		}
 
 		fmt.Println("Title: ", item.Title)
-		fmt.Println("Author: ", item.Author)
-		fmt.Println("Description: ", item.Description)
 		fmt.Println("Date: ", item.Published)
+	}
+}
+
+func TestOpml(t *testing.T) {
+	url := "./testdata/feedly.opml"
+
+	rss := internal.RSS{}
+
+	feeds := rss.Init(url)
+
+	for _, f := range feeds {
+		fmt.Println(f)
 	}
 }

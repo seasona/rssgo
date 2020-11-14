@@ -9,18 +9,20 @@ import (
 )
 
 type Config struct {
-	highLights                []string          `json:"highLights"`
-	feeds                     map[string]string `json:"feeds"`
-	keyMoveDown               string            `json:"keyMoveDown"`
-	keyMoveUp                 string            `json:"keyMoveUp"`
-	keySwitchWindows          string            `json:"keySwitchWindows"`
-	keyQuit                   string            `json:"keyQuit"`
-	keyHelp                   string            `json:"keyHelp"`
-	keyMarkArticle            string            `json:"keyMarkArticle"`
-	daysKeepDeletedArticle    int               `json:"daysKeepDeletedArticle"`
-	daysKeepReadArticle       int               `json:"daysKeepReadArticle"`
-	skipArticlesOlderThanDays int               `json:"skipArticlesOlderThanDays"`
-	secondsBetweenUpdates     int               `json:"secondsBetweenUpdates"`
+	// only exported fields will be encoded/decoded in JSON, 
+	// fields must start with capital letters to be exported.
+	HighLights                []string            `json:"highLights"`
+	Feeds                     []map[string]string `json:"feeds"`
+	KeyMoveDown               string              `json:"keyMoveDown"`
+	KeyMoveUp                 string              `json:"keyMoveUp"`
+	KeySwitchWindows          string              `json:"keySwitchWindows"`
+	KeyQuit                   string              `json:"keyQuit"`
+	KeyHelp                   string              `json:"keyHelp"`
+	KeyMarkArticle            string              `json:"keyMarkArticle"`
+	DaysKeepDeletedArticle    int                 `json:"daysKeepDeletedArticle"`
+	DaysKeepReadArticle       int                 `json:"daysKeepReadArticle"`
+	SkipArticlesOlderThanDays int                 `json:"skipArticlesOlderThanDays"`
+	SecondsBetweenUpdates     int                 `json:"secondsBetweenUpdates"`
 }
 
 func (c *Config) LoadConfig(file string) Config {

@@ -9,13 +9,41 @@ import (
 
 type RSS struct {
 	feeds []struct {
-		displayName string
-		feed        *gofeed.Feed
+		title string
+		feed  *gofeed.Feed
 	}
 }
 
-func (r *RSS) Init(){
+type Feed struct {
+	Title string
+	URL   string
+}
 
+func (r *RSS) Init(file string) []Feed{
+	op, err := opml.NewOPMLFromFile(file)
+	if err != nil {
+		panic(err)
+	}
+
+	var feeds []Feed
+
+	for _, b := range op.Body.Outlines {
+		if b.Outlines != nil {
+			for _, ib := range b.Outlines {
+				url := r.getURLFromOPML(ib)
+				if url != "" {
+					feeds = append(feeds, Feed{ib.Title, url})
+				}
+			}
+		} else {
+			url := r.getURLFromOPML(b)
+			if url != "" {
+				feeds = append(feeds, Feed{b.Title, url})
+			}
+		}
+	}
+
+	return feeds
 }
 
 func (r *RSS) getURLFromOPML(b opml.Outline) string {

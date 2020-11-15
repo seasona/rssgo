@@ -1,7 +1,9 @@
 package internal
 
 import (
+	"log"
 	"net/http"
+	"sync"
 
 	"github.com/gilliek/go-opml/opml"
 	"github.com/mmcdole/gofeed"
@@ -12,6 +14,7 @@ type RSS struct {
 		title string
 		feed  *gofeed.Feed
 	}
+	c *Controller
 }
 
 type Feed struct {
@@ -19,31 +22,35 @@ type Feed struct {
 	URL   string
 }
 
-func (r *RSS) Init(file string) []Feed{
-	op, err := opml.NewOPMLFromFile(file)
-	if err != nil {
-		panic(err)
-	}
+func (r *RSS) Init(c *Controller) {
+	r.c = c
+	r.feeds = []struct {
+		title string
+		feed  *gofeed.Feed
+	}{}
 
-	var feeds []Feed
+	if c.conf.OpmlFile != "" {
+		op, err := opml.NewOPMLFromFile(r.c.conf.OpmlFile)
+		if err != nil {
+			log.Fatal("Can't load opml file: ", r.c.conf.OpmlFile)
+		}
 
-	for _, b := range op.Body.Outlines {
-		if b.Outlines != nil {
-			for _, ib := range b.Outlines {
-				url := r.getURLFromOPML(ib)
-				if url != "" {
-					feeds = append(feeds, Feed{ib.Title, url})
+		for _, b := range op.Body.Outlines {
+			if b.Outlines != nil {
+				for _, ib := range b.Outlines {
+					url := r.getURLFromOPML(ib)
+					if url != "" {
+						r.c.feeds = append(r.c.feeds, Feed{ib.Title, url})
+					}
 				}
-			}
-		} else {
-			url := r.getURLFromOPML(b)
-			if url != "" {
-				feeds = append(feeds, Feed{b.Title, url})
+			} else {
+				url := r.getURLFromOPML(b)
+				if url != "" {
+					r.c.feeds = append(r.c.feeds, Feed{b.Title, url})
+				}
 			}
 		}
 	}
-
-	return feeds
 }
 
 func (r *RSS) getURLFromOPML(b opml.Outline) string {
@@ -82,4 +89,31 @@ func (r *RSS) FetchURL(fp *gofeed.Parser, url string) (*gofeed.Feed, error) {
 	}
 
 	return fp.Parse(resp.Body)
+}
+
+// Update will
+func (r *RSS) Update() {
+	var m sync.Mutex
+	var wg sync.WaitGroup
+
+	for _, f := range r.c.feeds {
+		wg.Add(1)
+		go func(f Feed) {
+			fp := gofeed.NewParser()
+			feed, err := r.FetchURL(fp, f.URL)
+			if err != nil {
+				log.Printf("Error occur when fetch url: %s, err: %v", f.URL, err)
+			} else {
+				m.Lock()
+				r.feeds = append(r.feeds, struct {
+					title string
+					feed  *gofeed.Feed
+				}{f.Title, feed})
+				m.Unlock()
+			}
+
+			wg.Done()
+		}(f)
+	}
+	wg.Wait()
 }

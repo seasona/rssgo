@@ -9,9 +9,10 @@ import (
 )
 
 type Config struct {
-	// only exported fields will be encoded/decoded in JSON, 
+	// only exported fields will be encoded/decoded in JSON,
 	// fields must start with capital letters to be exported.
 	HighLights                []string            `json:"highLights"`
+	OpmlFile                  string              `json:"opml"`
 	Feeds                     []map[string]string `json:"feeds"`
 	KeyMoveDown               string              `json:"keyMoveDown"`
 	KeyMoveUp                 string              `json:"keyMoveUp"`

@@ -5,6 +5,7 @@
         "GO",
         "Golang"
     ],
+    "opml": "",
     "feeds": [
         {
             "name": "Daniel Lemire's blog",

@@ -31,14 +31,3 @@ func TestFetchRSS(t *testing.T) {
 	}
 }
 
-func TestOpml(t *testing.T) {
-	url := "./testdata/feedly.opml"
-
-	rss := internal.RSS{}
-
-	feeds := rss.Init(url)
-
-	for _, f := range feeds {
-		fmt.Println(f)
-	}
-}

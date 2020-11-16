@@ -10,7 +10,7 @@ import (
 )
 
 func TestFetchRSS(t *testing.T) {
-	url := "http://feeds.twit.tv/twit.xml"
+	url := "http://feeds.ign.com/ign/games-all"
 
 	fp := gofeed.NewParser()
 
@@ -19,6 +19,7 @@ func TestFetchRSS(t *testing.T) {
 
 	if err != nil {
 		t.Errorf("Can't fetch from RSS")
+		panic(err)
 	}
 
 	for _, item := range feed.Items {
@@ -29,5 +30,9 @@ func TestFetchRSS(t *testing.T) {
 		fmt.Println("Title: ", item.Title)
 		fmt.Println("Date: ", item.Published)
 	}
+}
+
+func TestUpdate(t *testing.T){
+
 }
 

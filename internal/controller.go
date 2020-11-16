@@ -5,5 +5,4 @@ import ()
 type Controller struct {
 	rss   *RSS
 	conf  Config
-	feeds []Feed
 }

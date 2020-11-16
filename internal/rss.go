@@ -9,47 +9,27 @@ import (
 	"github.com/mmcdole/gofeed"
 )
 
-type RSS struct {
-	feeds []struct {
-		title string
-		feed  *gofeed.Feed
-	}
-	c *Controller
+type titleFeed struct {
+	title string
+	feed  *gofeed.Feed
 }
 
-type Feed struct {
+type titleURL struct {
 	Title string
 	URL   string
 }
 
+type RSS struct {
+	titleFeeds []titleFeed
+	titleURLs  []titleURL
+	c          *Controller
+}
+
 func (r *RSS) Init(c *Controller) {
 	r.c = c
-	r.feeds = []struct {
-		title string
-		feed  *gofeed.Feed
-	}{}
 
-	if c.conf.OpmlFile != "" {
-		op, err := opml.NewOPMLFromFile(r.c.conf.OpmlFile)
-		if err != nil {
-			log.Fatal("Can't load opml file: ", r.c.conf.OpmlFile)
-		}
-
-		for _, b := range op.Body.Outlines {
-			if b.Outlines != nil {
-				for _, ib := range b.Outlines {
-					url := r.getURLFromOPML(ib)
-					if url != "" {
-						r.c.feeds = append(r.c.feeds, Feed{ib.Title, url})
-					}
-				}
-			} else {
-				url := r.getURLFromOPML(b)
-				if url != "" {
-					r.c.feeds = append(r.c.feeds, Feed{b.Title, url})
-				}
-			}
-		}
+	if c.conf.OPML != "" {
+		r.getTitleURLFromOPML(c.conf.OPML)
 	}
 }
 
@@ -63,6 +43,29 @@ func (r *RSS) getURLFromOPML(b opml.Outline) string {
 		str = b.URL
 	}
 	return str
+}
+
+func (r *RSS) getTitleURLFromOPML(opmlFile string){
+	op, err := opml.NewOPMLFromFile(opmlFile)
+	if err != nil {
+		log.Fatal("Can't load opml file: ", r.c.conf.OPML)
+	}
+
+	for _, b := range op.Body.Outlines {
+		if b.Outlines != nil {
+			for _, ib := range b.Outlines {
+				url := r.getURLFromOPML(ib)
+				if url != "" {
+					r.titleURLs = append(r.titleURLs, titleURL{ib.Title, url})
+				}
+			}
+		} else {
+			url := r.getURLFromOPML(b)
+			if url != "" {
+				r.titleURLs = append(r.titleURLs, titleURL{b.Title, url})
+			}
+		}
+	}
 }
 
 // FetchURL will send a request to url and use gofeed parse response's body
@@ -96,19 +99,16 @@ func (r *RSS) Update() {
 	var m sync.Mutex
 	var wg sync.WaitGroup
 
-	for _, f := range r.c.feeds {
+	for _, f := range r.titleURLs {
 		wg.Add(1)
-		go func(f Feed) {
+		go func(f titleURL) {
 			fp := gofeed.NewParser()
 			feed, err := r.FetchURL(fp, f.URL)
 			if err != nil {
 				log.Printf("Error occur when fetch url: %s, err: %v", f.URL, err)
 			} else {
 				m.Lock()
-				r.feeds = append(r.feeds, struct {
-					title string
-					feed  *gofeed.Feed
-				}{f.Title, feed})
+				r.titleFeeds = append(r.titleFeeds, titleFeed{f.Title, feed})
 				m.Unlock()
 			}
 

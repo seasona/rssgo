@@ -29,7 +29,7 @@ func (r *RSS) Init(c *Controller) {
 	r.c = c
 
 	if c.conf.OPML != "" {
-		r.getTitleURLFromOPML(c.conf.OPML)
+		r.GetTitleURLFromOPML(c.conf.OPML)
 	}
 }
 
@@ -45,7 +45,7 @@ func (r *RSS) getURLFromOPML(b opml.Outline) string {
 	return str
 }
 
-func (r *RSS) getTitleURLFromOPML(opmlFile string){
+func (r *RSS) GetTitleURLFromOPML(opmlFile string) {
 	op, err := opml.NewOPMLFromFile(opmlFile)
 	if err != nil {
 		log.Fatal("Can't load opml file: ", r.c.conf.OPML)
@@ -68,7 +68,7 @@ func (r *RSS) getTitleURLFromOPML(opmlFile string){
 	}
 }
 
-// FetchURL will send a request to url and use gofeed parse response's body
+// FetchURL will send a request to url and use gofeed parse response's body.
 func (r *RSS) FetchURL(fp *gofeed.Parser, url string) (*gofeed.Feed, error) {
 	client := http.Client{}
 

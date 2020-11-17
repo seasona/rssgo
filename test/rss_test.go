@@ -1,7 +1,6 @@
 package test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/mmcdole/gofeed"
@@ -27,12 +26,19 @@ func TestFetchRSS(t *testing.T) {
 			continue
 		}
 
-		fmt.Println("Title: ", item.Title)
-		fmt.Println("Date: ", item.Published)
+		//fmt.Println("Title: ", item.Title)
+		//fmt.Println("Date: ", item.Published)
 	}
 }
 
-func TestUpdate(t *testing.T){
+// there may be two error: err: Failed to detect feed type, which means the RSS url has problem;
+// connectex: A connection attempt failed, which is network problem, may caused by GFW in china
+func TestUpdate(t *testing.T) {
+	url := "testdata/feedly.opml"
 
+	rss := internal.RSS{}
+
+	rss.GetTitleURLFromOPML(url)
+
+	rss.Update()
 }
-

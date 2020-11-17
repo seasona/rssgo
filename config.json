@@ -8,7 +8,7 @@
     "opml": "",
     "feeds": [
         {
-            "name": "Daniel Lemire's blog",
+            "title": "Daniel Lemire's blog",
             "url": "https://lemire.me/blog/feed"
         }
     ],

@@ -6,3 +6,7 @@ type Controller struct {
 	conf  Config
 	theme Theme
 }
+
+func (c *Controller) Init() {
+
+}

@@ -7,7 +7,7 @@
     <body>
         <outline text="Gaming" title="Gaming">
             <outline type="rss" text="Kotaku" title="Kotaku" xmlUrl="http://feeds.gawker.com/kotaku/vip" htmlUrl="https://kotaku.com"/>
-            <outline type="rss" text="GameSpot" title="GameSpot" xmlUrl="http://www.gamespot.com/rss/game_updates.php" htmlUrl="https://www.gamespot.com/feeds/mashup"/>
+            <outline type="rss" text="GameSpot" title="GameSpot" xmlUrl="https://www.gamespot.com/feeds/game-news" htmlUrl="https://www.gamespot.com/feeds/mashup"/>
             <outline type="rss" text="IGN" title="IGN" xmlUrl="http://feeds.ign.com/ign/games-all" htmlUrl="https://www.ign.com/articles"/>
         </outline>
         <outline text="Programming" title="Programming">

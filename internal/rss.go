@@ -31,6 +31,8 @@ func (r *RSS) Init(c *Controller) {
 
 	if c.conf.OPML != "" {
 		r.GetTitleURLFromOPML(c.conf.OPML)
+	} else {
+		r.GetTitleURLFromConfig()
 	}
 }
 
@@ -66,6 +68,12 @@ func (r *RSS) GetTitleURLFromOPML(opmlFile string) {
 				r.titleURLs = append(r.titleURLs, titleURL{b.Title, url})
 			}
 		}
+	}
+}
+
+func (r *RSS) GetTitleURLFromConfig() {
+	for _, feed := range r.c.conf.Feeds {
+		r.titleURLs = append(r.titleURLs, titleURL{feed["title"], feed["url"]})
 	}
 }
 

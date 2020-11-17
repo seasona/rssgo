@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -89,6 +90,10 @@ func (r *RSS) FetchURL(fp *gofeed.Parser, url string) (*gofeed.Feed, error) {
 			// there should be a error handle after defer
 			resp.Body.Close()
 		}()
+	}
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, fmt.Errorf("failed to get url %v, %v", resp.StatusCode, resp.Status)
 	}
 
 	return fp.Parse(resp.Body)

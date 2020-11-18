@@ -10,7 +10,7 @@ import (
 	"github.com/seasona/rssgo/internal"
 )
 
-func TestDBInit(t *testing.T) {
+func TestDBCreateTables(t *testing.T) {
 	url := "testdata/feedly.opml"
 	rss := internal.RSS{}
 	rss.GetTitleURLFromOPML(url)

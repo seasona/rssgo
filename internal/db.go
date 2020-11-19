@@ -63,7 +63,7 @@ func (d *DB) CreateTables(rss *RSS) {
 	}
 }
 
-func (d *DB) cleanUp() {
+func (d *DB) CleanUp() {
 	for _, tname := range d.tableMap {
 		// sqlite3 is not support bool, but go-sqlite3 can transform bool to 1 or 0
 		st1, err := d.db.Prepare(fmt.Sprintf("delete from %v where published < date('now', '-%d day') and deleted = true",
@@ -110,4 +110,18 @@ func (d *DB) Save(a Article) {
 	for res.Next() {
 		return
 	}
+
+	st2, err := d.db.Prepare(fmt.Sprintf("insert into %v(feed, title, content, link, read, display_name, published,deleted) values(?, ?, ?, ?, ?, ?, ?,?)", tname))
+	if err != nil {
+		log.Println(err)
+	}
+	defer st2.Close()
+
+	if _, err = st2.Exec(a.feed, a.title, a.content, a.link, false, a.feedDisplay, a.published, false); err != nil {
+		log.Println(err)
+	}
+}
+
+func (d *DB) Delete(a Article) {
+
 }

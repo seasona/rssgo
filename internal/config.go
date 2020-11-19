@@ -11,9 +11,9 @@ import (
 type Config struct {
 	// only exported fields will be encoded/decoded in JSON,
 	// fields must start with capital letters to be exported.
-	HighLights                []string            `json:"highLights"`
 	OPML                      string              `json:"opml"`
 	Feeds                     []map[string]string `json:"feeds"`
+	Theme                     string              `json:"theme"`
 	KeyMoveDown               string              `json:"keyMoveDown"`
 	KeyMoveUp                 string              `json:"keyMoveUp"`
 	KeySwitchWindows          string              `json:"keySwitchWindows"`

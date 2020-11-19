@@ -107,7 +107,7 @@ func (r *RSS) FetchURL(fp *gofeed.Parser, url string) (*gofeed.Feed, error) {
 	return fp.Parse(resp.Body)
 }
 
-// Update will
+// Update will fetch all content from rss
 func (r *RSS) Update() {
 	var m sync.Mutex
 	var wg sync.WaitGroup

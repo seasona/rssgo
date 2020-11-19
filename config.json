@@ -1,11 +1,6 @@
 {
-    "highlights": [
-        "C++",
-        "Cpp",
-        "GO",
-        "Golang"
-    ],
     "opml": "",
+    "theme": "",
     "feeds": [
         {
             "title": "Daniel Lemire's blog",

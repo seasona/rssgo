@@ -161,3 +161,29 @@ func (d *DB) MarkUnread(a Article) {
 		log.Println(err)
 	}
 }
+
+func (d *DB) MarkAllRead(a Article) {
+	tname := d.tableMap[a.feed]
+	st, err := d.db.Prepare(fmt.Sprintf("update %v set read = ture", tname))
+	if err != nil {
+		log.Println(err)
+	}
+	defer st.Close()
+
+	if _, err := st.Exec(); err != nil {
+		log.Println(err)
+	}
+}
+
+func (d *DB) MarkAllUnread(a Article) {
+	tname := d.tableMap[a.feed]
+	st, err := d.db.Prepare(fmt.Sprintf("update %v set read = false", tname))
+	if err != nil {
+		log.Println(err)
+	}
+	defer st.Close()
+
+	if _, err := st.Exec(); err != nil {
+		log.Println(err)
+	}
+}

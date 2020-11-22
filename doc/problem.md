@@ -18,5 +18,4 @@ when use http to request the RSS feed, it may occur two problems:
 ```
 
 - some subscribe is not free like kotaku, can't get through http. 
-- connection will be refused by host, it's caused by GFW in china, so this is a problem can't 
-be fixed
+- connection will be refused by host, it's caused by GFW in china, so this is a problem can't be fixed

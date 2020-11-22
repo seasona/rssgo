@@ -26,8 +26,7 @@ type Config struct {
 	SecondsBetweenUpdates     int                 `json:"secondsBetweenUpdates"`
 }
 
-func (c *Config) LoadConfig(file string) Config {
-	var conf Config
+func (c *Config) LoadConfig(file string) {
 	cf, err := os.Open(file)
 	defer cf.Close()
 
@@ -36,18 +35,18 @@ func (c *Config) LoadConfig(file string) Config {
 	}
 
 	jsonParser := json.NewDecoder(cf)
-	err = jsonParser.Decode(&conf)
+	err = jsonParser.Decode(c)
 
 	if err != nil {
 		log.Fatal("Can't decode json file:", err)
 	}
 
 	keys := make(map[string]struct{})
-	val := reflect.Indirect(reflect.ValueOf(conf))
+	val := reflect.Indirect(reflect.ValueOf(c))
 
 	// use reflect to detect if the key setting repeat
 	for i := 0; i < val.NumField(); i++ {
-		if strings.HasPrefix(val.Type().Name(), "key") {
+		if strings.HasPrefix(val.Type().Field(i).Name, "key") {
 			if _, ok := keys[val.Field(i).String()]; ok {
 				log.Fatal("The key defined more than once: key:", val.Field(i).String())
 			} else {
@@ -55,6 +54,4 @@ func (c *Config) LoadConfig(file string) Config {
 			}
 		}
 	}
-
-	return conf
 }

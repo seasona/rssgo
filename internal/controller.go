@@ -48,14 +48,21 @@ func (c *Controller) UpdateFeeds() {
 				published = time.Now()
 			}
 
+			if int(time.Now().Sub(published).Hours()/24) > c.conf.SkipArticlesOlderThanDays {
+				continue
+			}
+
 			content := item.Description
 			if content == "" {
 				content = item.Content
 			}
 
+			// the feed attribute which gofeed get may be different from it's title,
+			// for example, The Verge's feed attribute is The Verge - All Feed,
+			// so use f.title as article's feed
 			a := Article{
 				c:         c,
-				feed:      f.feed.Title,
+				feed:      f.title,
 				title:     item.Title,
 				content:   content,
 				link:      item.Link,

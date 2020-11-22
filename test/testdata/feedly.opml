@@ -6,23 +6,16 @@
     </head>
     <body>
         <outline text="Gaming" title="Gaming">
-            <outline type="rss" text="Kotaku" title="Kotaku" xmlUrl="http://feeds.gawker.com/kotaku/vip" htmlUrl="https://kotaku.com"/>
             <outline type="rss" text="GameSpot" title="GameSpot" xmlUrl="https://www.gamespot.com/feeds/game-news" htmlUrl="https://www.gamespot.com/feeds/mashup"/>
-            <outline type="rss" text="IGN" title="IGN" xmlUrl="http://feeds.ign.com/ign/games-all" htmlUrl="https://www.ign.com/articles"/>
         </outline>
         <outline text="Programming" title="Programming">
-            <outline type="rss" text="DZone.com" title="DZone" xmlUrl="http://feeds.dzone.com/dzone/frontpage" htmlUrl="https://dzone.com"/>
-            <outline type="rss" text="programming" title="programming" xmlUrl="http://programming.reddit.com/.rss" htmlUrl="https://www.reddit.com/r/programming/"/>
-            <outline type="rss" text="C++" title="Cpp" xmlUrl="http://www.reddit.com/r/cpp/.rss" htmlUrl="https://www.reddit.com/r/cpp/"/>
-            <outline type="rss" text="Bartek's coding blog" title="Bartek coding blog" xmlUrl="http://www.bfilipek.com/feeds/posts/default" htmlUrl="https://www.bfilipek.com/"/>
+<!--            <outline type="rss" text="Bartek's coding blog" title="Bartek coding blog" xmlUrl="http://www.bfilipek.com/feeds/posts/default" htmlUrl="https://www.bfilipek.com/"/>-->
             <outline type="rss" text="Daniel Lemire's blog" title="Daniel Lemire's blog" xmlUrl="https://lemire.me/blog/feed/" htmlUrl="https://lemire.me/blog"/>
-            <outline type="rss" text="DEV Community" title="DEV Community" xmlUrl="http://thepracticaldev.com/feed" htmlUrl="https://dev.to"/>
             <outline type="rss" text="Lobsters" title="Lobsters" xmlUrl="https://lobste.rs/rss" htmlUrl="https://lobste.rs/"/>
         </outline>
         <outline text="News" title="News">
-            <outline type="rss" text="TIME" title="TIME" xmlUrl="http://rss.time.com/web/time/rss/top/index.xml" htmlUrl="https://time.com"/>
-            <outline type="rss" text="World News" title="World News" xmlUrl="http://www.reddit.com/r/worldnews/.rss" htmlUrl="https://www.reddit.com/r/worldnews/"/>
-            <outline type="rss" text="World news | The Guardian" title="World news | The Guardian" xmlUrl="http://feeds.guardian.co.uk/theguardian/world/rss" htmlUrl="https://www.theguardian.com/world"/>
+<!--            <outline type="rss" text="World News" title="World News" xmlUrl="http://www.reddit.com/r/worldnews/.rss" htmlUrl="https://www.reddit.com/r/worldnews/"/>-->
+<!--            <outline type="rss" text="World news | The Guardian" title="World news | The Guardian" xmlUrl="http://feeds.guardian.co.uk/theguardian/world/rss" htmlUrl="https://www.theguardian.com/world"/>-->
         </outline>
         <outline text="Tech" title="Tech">
             <outline type="rss" text="Engadget" title="Engadget" xmlUrl="http://www.engadget.com/rss-full.xml" htmlUrl="http://www.engadget.com"/>

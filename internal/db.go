@@ -98,6 +98,7 @@ func (d *DB) Save(a Article) {
 	tname := d.tableMap[a.feed]
 	st, err := d.db.Prepare(fmt.Sprintf("select title from %v where feed = ? and title = ? order by id", tname))
 	if err != nil {
+		log.Println(fmt.Sprintf("select title from %v where feed = ? and title = ? order by id", tname), a.feed)
 		log.Println(err)
 	}
 	defer st.Close()
@@ -123,5 +124,40 @@ func (d *DB) Save(a Article) {
 }
 
 func (d *DB) Delete(a Article) {
+	tname := d.tableMap[a.feed]
+	st, err := d.db.Prepare(fmt.Sprintf("update %v set deleted = true where id = ?", tname))
+	if err != nil {
+		log.Println(err)
+	}
+	defer st.Close()
 
+	if _, err = st.Exec(a.id); err != nil {
+		log.Println(err)
+	}
+}
+
+func (d *DB) MarkRead(a Article) {
+	tname := d.tableMap[a.feed]
+	st, err := d.db.Prepare(fmt.Sprintf("update %v set read = true where id = ?", tname))
+	if err != nil {
+		log.Println(err)
+	}
+	defer st.Close()
+
+	if _, err = st.Exec(a.id); err != nil {
+		log.Println(err)
+	}
+}
+
+func (d *DB) MarkUnread(a Article) {
+	tname := d.tableMap[a.feed]
+	st, err := d.db.Prepare(fmt.Sprintf("update %v set read = false where id = ?", tname))
+	if err != nil {
+		log.Println(err)
+	}
+	defer st.Close()
+
+	if _, err = st.Exec(a.id); err != nil {
+		log.Println(err)
+	}
 }

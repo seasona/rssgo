@@ -3,18 +3,18 @@
     "theme": "",
     "feeds": [
         {
-            "title": "Daniel Lemire's blog",
-            "url": "https://lemire.me/blog/feed"
+            "title": "The Verge",
+            "url": "http://www.theverge.com/rss/full.xml"
         }
     ],
     "keyMoveDown": "s",
     "keyMoveUp": "w",
     "keySwitchWindows": "Tab",
-    "keyQuit": "Ese",
+    "keyQuit": "Esc",
     "keyHelp": "h",
     "keyMarkArticle": "Enter",
     "daysKeepDeletedArticle": 7,
     "daysKeepReadArticle": 10,
-    "skipArticlesOlderThanDays": 10,
+    "skipArticlesOlderThanDays": 30,
     "secondsBetweenUpdates": 300
 }

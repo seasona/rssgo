@@ -13,7 +13,6 @@ type Config struct {
 	// fields must start with capital letters to be exported.
 	OPML                      string              `json:"opml"`
 	Feeds                     []map[string]string `json:"feeds"`
-	Theme                     string              `json:"theme"`
 	KeyMoveDown               string              `json:"keyMoveDown"`
 	KeyMoveUp                 string              `json:"keyMoveUp"`
 	KeySwitchWindows          string              `json:"keySwitchWindows"`

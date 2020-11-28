@@ -17,6 +17,7 @@ func (d *DB) Init(c *Controller, dbFile string) {
 	d.c = c
 	d.tableMap = make(map[string]string)
 
+	// sqlite3 will create a database if it is not exist
 	db, err := sql.Open("sqlite3", dbFile)
 	if err != nil {
 		log.Fatalf("Can't open database %v, %v", dbFile, err)

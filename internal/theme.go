@@ -1,9 +1,6 @@
 package internal
 
-import(
+import ()
 
-)
-
-type Theme struct{
-	
+type Theme struct {
 }

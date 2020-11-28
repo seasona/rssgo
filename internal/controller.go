@@ -11,7 +11,7 @@ type Controller struct {
 	lastUpdate time.Time
 }
 
-func (c *Controller) Init(cfg, dbFile string) {
+func (c *Controller) Init(cfg, theme, dbFile string) {
 	c.articles = make(map[string][]Article)
 
 	c.conf.LoadConfig(cfg)

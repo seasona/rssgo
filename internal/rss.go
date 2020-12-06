@@ -11,12 +11,12 @@ import (
 )
 
 type titleFeed struct {
-	title string
+	title string // the title will be same as titleURL
 	feed  *gofeed.Feed
 }
 
 type titleURL struct {
-	Title string
+	Title string // title set by opml or user's config
 	URL   string
 }
 

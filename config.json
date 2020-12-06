@@ -1,5 +1,5 @@
 {
-    "opml": "test/testdata/feedly.opml",
+    "opml": "D:\\研究生事项\\Golang\\rssgo\\test\\testdata\\feedly.opml",
     "feeds": [
         {
             "title": "The Verge",

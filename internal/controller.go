@@ -85,3 +85,7 @@ func (c *Controller) UpdateFeeds() {
 		}
 	}
 }
+
+func (c *Controller) GetAllArticleFromDB() {
+	c.articles = c.db.All()
+}

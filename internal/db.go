@@ -5,11 +5,12 @@ import (
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
+	"time"
 )
 
 type DB struct {
 	db       *sql.DB
-	tableMap map[string]string
+	tableMap map[string]string // the mapping of feed title and database table name
 	c        *Controller
 }
 
@@ -52,7 +53,6 @@ func (d *DB) CreateTables(rss *RSS) {
 				content text,
 				link text,
 				read bool,
-				display_name string,
 				deleted bool,
 				published DATETIME);`, tname)
 
@@ -95,6 +95,46 @@ func (d *DB) CleanUp() {
 	}
 }
 
+func (d *DB) All() map[string][]Article {
+	amap := make(map[string][]Article)
+	for _, tname := range d.tableMap {
+
+		st, err := d.db.Prepare(fmt.Sprintf("select id,feed,title,content,link,read,published from %v where deleted = false order by id", tname))
+		if err != nil {
+			log.Println(err)
+			return nil
+		}
+		defer st.Close()
+
+		rows, err := st.Query()
+		if err != nil {
+			log.Println(err)
+			return nil
+		}
+		defer rows.Close()
+
+		var (
+			id        int
+			title     string
+			content   string
+			feed      string
+			link      string
+			read      bool
+			published time.Time
+		)
+
+		for rows.Next() {
+			// the scan return index is according to the prepared statement
+			err = rows.Scan(&id, &feed, &title, &content, &link, &read, &published)
+			if err != nil {
+				log.Println(err)
+			}
+			amap[tname] = append(amap[tname], Article{id: id, feed: feed, title: title, content: content, published: published, link: link, read: read})
+		}
+	}
+	return amap
+}
+
 func (d *DB) Save(a Article) {
 	tname := d.tableMap[a.feed]
 	st, err := d.db.Prepare(fmt.Sprintf("select title from %v where feed = ? and title = ? order by id", tname))
@@ -113,13 +153,13 @@ func (d *DB) Save(a Article) {
 		return
 	}
 
-	st2, err := d.db.Prepare(fmt.Sprintf("insert into %v(feed, title, content, link, read, display_name, published,deleted) values(?, ?, ?, ?, ?, ?, ?,?)", tname))
+	st2, err := d.db.Prepare(fmt.Sprintf("insert into %v(feed, title, content, link, read, published,deleted) values(?, ?, ?, ?, ?, ?, ?)", tname))
 	if err != nil {
 		log.Println(err)
 	}
 	defer st2.Close()
 
-	if _, err = st2.Exec(a.feed, a.title, a.content, a.link, false, a.feedDisplay, a.published, false); err != nil {
+	if _, err = st2.Exec(a.feed, a.title, a.content, a.link, false, a.published, false); err != nil {
 		log.Println(err)
 	}
 }

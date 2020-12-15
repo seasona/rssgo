@@ -17,3 +17,10 @@ when use http to request the RSS feed, it may occur two problems:
 ## Load slow
 
 At first, rssgo will fetch all rss subscribe and store them in the database, it allocates the same number of feeds' goroutines to get data and wait all goroutines return then the program go on. This procedure will cost about 10 seconds. It's really slow and you have to wait every time initialize rssgo.
+
+## locale
+
+because the problem of tcell, the display abnormal in chinese environment. So if you use linux, change `locale` to `en_US.UTF-8`, in windows, change encoding of terminal to `UTF-8`
+
+## race condition 
+

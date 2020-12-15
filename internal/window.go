@@ -2,10 +2,11 @@ package internal
 
 import (
 	"fmt"
-	"github.com/gdamore/tcell/v2"
-	"github.com/rivo/tview"
 	"sort"
 	"time"
+
+	"github.com/gdamore/tcell/v2"
+	"github.com/rivo/tview"
 )
 
 type Window struct {
@@ -59,6 +60,7 @@ func (w *Window) Init(c *Controller) { //, inputFunc func(event *tcell.EventKey)
 	//w.app.SetInputCapture(inputFunc)
 
 	w.InitStatusWindow()
+	w.UpdateStatusTicker()
 	w.InitFlex()
 }
 
@@ -121,8 +123,6 @@ func (w *Window) InitStatusWindow() {
 		ts.SetSelectable(false)
 		w.status.SetCell(0, i, ts)
 	}
-
-	w.UpdateStatusTicker()
 }
 
 func (w *Window) UpdateStatus() {
@@ -133,7 +133,7 @@ func (w *Window) UpdateStatus() {
 		w.c.theme.StatusBrackets,
 		w.c.theme.StatusKey,
 		w.c.theme.StatusText,
-		time.Now().Format("15:04"),
+		time.Now().Format("15:04:05"),
 		w.c.theme.StatusBrackets))
 
 	// last update time
@@ -142,42 +142,33 @@ func (w *Window) UpdateStatus() {
 		w.c.theme.StatusBrackets,
 		w.c.theme.StatusKey,
 		w.c.theme.StatusText,
-		w.c.lastUpdate.Format("15:04")))
+		w.c.lastUpdate.Format("15:04"),
+		w.c.theme.StatusBrackets))
 
 	// todo need to update all articles and unread number
 	// total articles
-	//c = w.status.GetCell(0, 2)
-	//c.SetText(
-	//	fmt.Sprintf(
-	//		"[%s][[%s]Total Articles: [%s]%d[%s]]",
-	//		w.c.theme.StatusBrackets,
-	//		w.c.theme.StatusKey,
-	//		w.c.theme.StatusText,
-	//		len(w.c.articles),
-	//		w.c.theme.StatusBrackets))
+	c = w.status.GetCell(0, 2)
+	c.SetText(
+		fmt.Sprintf(
+			"[%s][[%s]Total Articles: [%s]%d[%s]]",
+			w.c.theme.StatusBrackets,
+			w.c.theme.StatusKey,
+			w.c.theme.StatusText,
+			0,
+			w.c.theme.StatusBrackets))
 
 	// unread number
-	//c = w.status.GetCell(0, 3)
-	//unread := 0
-	//feeds := make(map[string]struct{})
-	//for _, a := range w.c.articles {
-	//	if _, ok := feeds[a.feed]; !ok {
-	//		feeds[a.feed] = struct{}{}
-	//	}
-	//	if !a.read {
-	//		unread++
-	//	}
-	//}
-	//c.SetText(
-	//	fmt.Sprintf(
-	//		"[%s][[%s]Total Unread: [%s]%d[%s]]",
-	//		w.c.theme.StatusBrackets,
-	//		w.c.theme.StatusKey,
-	//		w.c.theme.StatusText,
-	//		unread,
-	//		w.c.theme.StatusBrackets,
-	//	),
-	//)
+	c = w.status.GetCell(0, 3)
+	c.SetText(
+		fmt.Sprintf(
+			"[%s][[%s]Total Unread: [%s]%d[%s]]",
+			w.c.theme.StatusBrackets,
+			w.c.theme.StatusKey,
+			w.c.theme.StatusText,
+			0,
+			w.c.theme.StatusBrackets,
+		),
+	)
 
 	c = w.status.GetCell(0, 4)
 	c.SetText(
@@ -215,18 +206,26 @@ func (w *Window) UpdateStatus() {
 		),
 	)
 
-	w.app.Draw()
+	// w.app.Draw()
 }
 
 func (w *Window) UpdateStatusTicker() {
+	// the app in tview will draw first time during Run()
+	// https://github.com/rivo/tview/wiki/Concurrency
 	w.UpdateStatus()
+	// w.app.Draw()
+	//? can't use app.Draw() there
 	ticker := time.NewTicker(1 * time.Second)
 	go func() {
 		for {
 			select {
 			case <-ticker.C:
 				w.UpdateStatus()
+				w.app.Draw()
 			}
+			// another way to write timer in tview
+			// time.Sleep(1 * time.Second)
+			// w.app.QueueUpdateDraw(w.UpdateStatus)
 		}
 	}()
 }

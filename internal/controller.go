@@ -15,6 +15,7 @@ func (c *Controller) Init(cfg, theme, dbFile string) {
 	c.articles = make(map[string][]Article)
 
 	c.conf.LoadConfig(cfg)
+	c.theme.LoadTheme(theme)
 
 	// rss depends on config's opml file
 	c.rss = &RSS{}

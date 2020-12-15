@@ -16,11 +16,12 @@ type Window struct {
 	help        *tview.Table
 	preview     *tview.TextView
 	app         *tview.Application
+	layout      *tview.Flex
 	showPreview bool
 	showHelp    bool
 }
 
-func (w *Window) Init(c *Controller, inputFunc func(event *tcell.EventKey) *tcell.EventKey) {
+func (w *Window) Init(c *Controller) { //, inputFunc func(event *tcell.EventKey) *tcell.EventKey) {
 	w.c = c
 
 	w.showPreview = true
@@ -54,10 +55,11 @@ func (w *Window) Init(c *Controller, inputFunc func(event *tcell.EventKey) *tcel
 	w.preview.SetDynamicColors(true)
 	w.preview.SetTitle(fmt.Sprintf("%s Preview", w.c.theme.PreviewIcon)).SetTitleColor(tcell.GetColor(w.c.theme.PreviewBorderTitle))
 
-	w.InitStatusWindow()
-
 	w.app = tview.NewApplication()
-	w.app.SetInputCapture(inputFunc)
+	//w.app.SetInputCapture(inputFunc)
+
+	w.InitStatusWindow()
+	w.InitFlex()
 }
 
 func (w *Window) InitHelpWindow() {
@@ -227,4 +229,32 @@ func (w *Window) UpdateStatusTicker() {
 			}
 		}
 	}()
+}
+
+func (w *Window) InitFlex() {
+	flexFeed := tview.NewFlex().SetDirection(tview.FlexRow)
+	flexFeed.AddItem(w.feeds, 0, 1, false)
+
+	// article:preview = 2:1
+	flexPreArticle := tview.NewFlex().SetDirection(tview.FlexRow)
+	flexPreArticle.AddItem(w.articles, 0, 2, false)
+	flexPreArticle.AddItem(w.preview, 0, 1, false)
+
+	// feed:article = 2:5
+	flexGlobal := tview.NewFlex().SetDirection(tview.FlexColumn)
+	flexGlobal.AddItem(flexFeed, 0, 2, false)
+	flexGlobal.AddItem(flexPreArticle, 0, 5, false)
+
+	flexStatus := tview.NewFlex().SetDirection(tview.FlexRow)
+	flexStatus.AddItem(flexGlobal, 0, 20, false)
+	flexStatus.AddItem(w.status, 1, 1, false)
+
+	w.layout = tview.NewFlex()
+	w.layout.AddItem(flexStatus, 0, 1, false)
+}
+
+func (w *Window) Start() {
+	if err := w.app.SetRoot(w.layout, true).SetFocus(w.feeds).Run(); err != nil {
+		panic(err)
+	}
 }

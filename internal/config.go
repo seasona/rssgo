@@ -18,6 +18,7 @@ type Config struct {
 	KeySwitchWindows          string              `json:"keySwitchWindows"`
 	KeyQuit                   string              `json:"keyQuit"`
 	KeyHelp                   string              `json:"keyHelp"`
+	KeyPreview                string              `json:"keyPreview"`
 	KeyMarkArticle            string              `json:"keyMarkArticle"`
 	DaysKeepDeletedArticle    int                 `json:"daysKeepDeletedArticle"`
 	DaysKeepReadArticle       int                 `json:"daysKeepReadArticle"`
@@ -68,7 +69,7 @@ func (c *Config) GetConfigKeys() map[string]string {
 	//keys["Sort by feed"] = c.KeySortByFeed
 	//keys["Sort by title"] = c.KeySortByTitle
 	//keys["Sort by unread"] = c.KeySortByUnread
-	//keys["Toggle Preview"] = c.KeyTogglePreview
+	keys["Toggle Preview"] = c.KeyPreview
 	//keys["Mark All Read"] = c.KeyMarkAllRead
 	//keys["Mark All UnRead"] = c.KeyMarkAllUnread
 	keys["Toggle Help"] = c.KeyHelp

@@ -1,10 +1,17 @@
 package internal
 
-import "time"
+import (
+	"os"
+	"strings"
+	"time"
+
+	"github.com/gdamore/tcell/v2"
+)
 
 type Controller struct {
 	db         *DB
 	rss        *RSS
+	win        *Window
 	conf       Config
 	theme      Theme
 	articles   map[string][]Article
@@ -24,6 +31,11 @@ func (c *Controller) Init(cfg, theme, dbFile string) {
 	// db depends on rss feed, so must initialize behind it
 	c.db = &DB{}
 	c.db.Init(c, dbFile)
+
+	c.win = &Window{}
+	c.win.Init(c, c.InputFunc)
+
+	c.win.Start()
 }
 
 // UpdateFeeds will update all rss and save the result to database
@@ -89,4 +101,32 @@ func (c *Controller) UpdateFeeds() {
 
 func (c *Controller) GetAllArticleFromDB() {
 	c.articles = c.db.All()
+}
+
+func (c *Controller) Quit() {
+	c.win.app.Stop()
+	os.Exit(0)
+}
+
+func (c *Controller) InputFunc(event *tcell.EventKey) *tcell.EventKey {
+	keyName := event.Name()
+	// the keyName may be Rune[p], so need remove rune
+	if strings.Contains(keyName, "Rune") {
+		keyName = string(event.Rune())
+	}
+
+	switch keyName {
+	case c.conf.KeySwitchWindows:
+		c.win.SwitchFocus()
+	case c.conf.KeyHelp:
+		c.win.TriggerHelp()
+	case c.conf.KeyPreview:
+		c.win.TriggerPreview()
+	case c.conf.KeyQuit:
+		c.Quit()
+	default:
+		return event
+	}
+
+	return nil
 }

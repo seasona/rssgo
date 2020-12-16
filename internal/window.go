@@ -2,7 +2,6 @@ package internal
 
 import (
 	"fmt"
-	"sort"
 	"time"
 
 	"github.com/gdamore/tcell/v2"
@@ -10,19 +9,23 @@ import (
 )
 
 type Window struct {
-	c           *Controller
-	feeds       *tview.Table
-	articles    *tview.Table
-	status      *tview.Table
-	help        *tview.Table
-	preview     *tview.TextView
-	app         *tview.Application
-	layout      *tview.Flex
-	showPreview bool
-	showHelp    bool
+	c              *Controller
+	feeds          *tview.Table
+	articles       *tview.Table
+	status         *tview.Table
+	help           *tview.Table
+	preview        *tview.TextView
+	app            *tview.Application
+	flexFeed       *tview.Flex
+	flexPreArticle *tview.Flex
+	flexGlobal     *tview.Flex
+	flexStatus     *tview.Flex
+	layout         *tview.Flex
+	showPreview    bool
+	showHelp       bool
 }
 
-func (w *Window) Init(c *Controller) { //, inputFunc func(event *tcell.EventKey) *tcell.EventKey) {
+func (w *Window) Init(c *Controller, inputFunc func(event *tcell.EventKey) *tcell.EventKey) {
 	w.c = c
 
 	w.showPreview = true
@@ -57,7 +60,7 @@ func (w *Window) Init(c *Controller) { //, inputFunc func(event *tcell.EventKey)
 	w.preview.SetTitle(fmt.Sprintf("%s Preview", w.c.theme.PreviewIcon)).SetTitleColor(tcell.GetColor(w.c.theme.PreviewBorderTitle))
 
 	w.app = tview.NewApplication()
-	//w.app.SetInputCapture(inputFunc)
+	w.app.SetInputCapture(inputFunc)
 
 	w.InitStatusWindow()
 	w.UpdateStatusTicker()
@@ -87,15 +90,10 @@ func (w *Window) InitHelpWindow() {
 
 	i := 1
 	configKeys := w.c.conf.GetConfigKeys()
-	var keys []string
-	for _, k := range configKeys {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
 
-	for _, k := range keys {
+	for k, v := range configKeys {
 		i++
-		ts = tview.NewTableCell(fmt.Sprintf("%s", configKeys[k]))
+		ts = tview.NewTableCell(fmt.Sprintf("%s", v))
 		ts.SetAlign(tview.AlignLeft)
 		ts.Attributes |= tcell.AttrBold
 		ts.SetSelectable(false)
@@ -231,29 +229,65 @@ func (w *Window) UpdateStatusTicker() {
 }
 
 func (w *Window) InitFlex() {
-	flexFeed := tview.NewFlex().SetDirection(tview.FlexRow)
-	flexFeed.AddItem(w.feeds, 0, 1, false)
+	w.flexFeed = tview.NewFlex().SetDirection(tview.FlexRow)
+	w.flexFeed.AddItem(w.feeds, 0, 1, false)
 
 	// article:preview = 2:1
-	flexPreArticle := tview.NewFlex().SetDirection(tview.FlexRow)
-	flexPreArticle.AddItem(w.articles, 0, 2, false)
-	flexPreArticle.AddItem(w.preview, 0, 1, false)
+	w.flexPreArticle = tview.NewFlex().SetDirection(tview.FlexRow)
+	w.flexPreArticle.AddItem(w.articles, 0, 2, false)
+	w.flexPreArticle.AddItem(w.preview, 0, 1, false)
 
 	// feed:article = 2:5
-	flexGlobal := tview.NewFlex().SetDirection(tview.FlexColumn)
-	flexGlobal.AddItem(flexFeed, 0, 2, false)
-	flexGlobal.AddItem(flexPreArticle, 0, 5, false)
+	w.flexGlobal = tview.NewFlex().SetDirection(tview.FlexColumn)
+	w.flexGlobal.AddItem(w.flexFeed, 0, 2, false)
+	w.flexGlobal.AddItem(w.flexPreArticle, 0, 5, false)
 
-	flexStatus := tview.NewFlex().SetDirection(tview.FlexRow)
-	flexStatus.AddItem(flexGlobal, 0, 20, false)
-	flexStatus.AddItem(w.status, 1, 1, false)
+	w.flexStatus = tview.NewFlex().SetDirection(tview.FlexRow)
+	w.flexStatus.AddItem(w.flexGlobal, 0, 20, false)
+	w.flexStatus.AddItem(w.status, 1, 1, false)
 
 	w.layout = tview.NewFlex()
-	w.layout.AddItem(flexStatus, 0, 1, false)
+	w.layout.AddItem(w.flexStatus, 0, 1, false)
 }
 
 func (w *Window) Start() {
 	if err := w.app.SetRoot(w.layout, true).SetFocus(w.feeds).Run(); err != nil {
 		panic(err)
+	}
+}
+
+// SwitchFocus feeds->article->preview->feeds
+func (w *Window) SwitchFocus() {
+	f := w.app.GetFocus()
+	if f == w.feeds {
+		w.app.SetFocus(w.articles)
+	} else if f == w.articles {
+		w.app.SetFocus(w.preview)
+	} else if f == w.preview {
+		w.app.SetFocus(w.feeds)
+	}
+}
+
+func (w *Window) TriggerPreview() {
+	if !w.showPreview {
+		w.flexPreArticle.AddItem(w.preview, 0, 1, false)
+		w.showPreview = true
+	} else {
+		w.flexPreArticle.RemoveItem(w.preview)
+		w.showPreview = false
+	}
+}
+
+func (w *Window) TriggerHelp() {
+	if !w.showHelp {
+		w.flexPreArticle.RemoveItem(w.articles)
+		w.flexPreArticle.RemoveItem(w.preview)
+		w.flexPreArticle.AddItem(w.help, 0, 1, false)
+		w.showHelp = true
+	} else {
+		w.flexPreArticle.AddItem(w.articles, 0, 2, false)
+		w.flexPreArticle.AddItem(w.preview, 0, 1, false)
+		w.flexPreArticle.RemoveItem(w.help)
+		w.showHelp = false
 	}
 }

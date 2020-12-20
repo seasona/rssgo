@@ -6,6 +6,7 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
+	"golang.org/x/text/language/display"
 )
 
 type Window struct {
@@ -23,6 +24,8 @@ type Window struct {
 	layout         *tview.Flex
 	showPreview    bool
 	showHelp       bool
+	nFeeds         int
+	nArticles      int
 }
 
 func (w *Window) Init(c *Controller, inputFunc func(event *tcell.EventKey) *tcell.EventKey) {
@@ -262,7 +265,11 @@ func (w *Window) SwitchFocus() {
 	if f == w.feeds {
 		w.app.SetFocus(w.articles)
 	} else if f == w.articles {
-		w.app.SetFocus(w.preview)
+		if w.showPreview {
+			w.app.SetFocus(w.preview)
+		} else {
+			w.app.SetFocus(w.feeds)
+		}
 	} else if f == w.preview {
 		w.app.SetFocus(w.feeds)
 	}
@@ -286,8 +293,113 @@ func (w *Window) TriggerHelp() {
 		w.showHelp = true
 	} else {
 		w.flexPreArticle.AddItem(w.articles, 0, 2, false)
-		w.flexPreArticle.AddItem(w.preview, 0, 1, false)
+		if w.showPreview {
+			w.flexPreArticle.AddItem(w.preview, 0, 1, false)
+		}
 		w.flexPreArticle.RemoveItem(w.help)
 		w.showHelp = false
 	}
+}
+
+// ClearFeeds will clear the feed window and reset it
+func (w *Window) ClearFeeds() {
+	w.feeds.Clear()
+	w.feeds.SetTitle(fmt.Sprintf("%s Feeds", w.c.theme.FeedIcon)).SetTitleColor(tcell.GetColor(w.c.theme.FeedBorderTitle))
+	w.nFeeds = 0
+
+	ts := tview.NewTableCell("Total")
+	ts.SetAlign(tview.AlignLeft)
+	ts.Attributes |= tcell.AttrBold
+	ts.SetSelectable(false)
+	ts.SetTextColor(tcell.GetColor(w.c.theme.TableHead))
+	w.feeds.SetCell(0, 0, ts)
+
+	ts = tview.NewTableCell("Unread")
+	ts.SetAlign(tview.AlignLeft)
+	ts.Attributes |= tcell.AttrBold
+	ts.SetSelectable(false)
+	ts.SetTextColor(tcell.GetColor(w.c.theme.TableHead))
+	w.feeds.SetCell(0, 1, ts)
+
+	ts = tview.NewTableCell("Feed")
+	ts.SetAlign(tview.AlignLeft)
+	ts.Attributes |= tcell.AttrBold
+	ts.SetTextColor(tcell.GetColor(w.c.theme.TableHead))
+	ts.SetSelectable(false)
+	w.feeds.SetCell(0, 2, ts)
+
+	w.feeds.SetSelectable(true, false)
+}
+
+func (w *Window) AddToFeeds(title string, unread, total int, ref string) {
+	nc := tview.NewTableCell(fmt.Sprintf("%d", total))
+	nc.SetAlign(tview.AlignLeft)
+	w.feeds.SetCell(w.nFeeds, 0, nc)
+	nc.SetSelectable(true)
+	nc.SetTextColor(tcell.GetColor(w.c.theme.TotalColumn))
+
+	// Display number of unread articles
+	nc = tview.NewTableCell(fmt.Sprintf("%d", unread))
+	nc.SetAlign(tview.AlignLeft)
+	w.feeds.SetCell(w.nFeeds, 1, nc)
+	nc.SetSelectable(true)
+	nc.SetTextColor(tcell.GetColor(w.c.theme.UnreadColumn))
+
+	nc = tview.NewTableCell(fmt.Sprintf("%s", title))
+	nc.SetAlign(tview.AlignLeft)
+	w.feeds.SetCell(w.nFeeds, 2, nc)
+	nc.SetSelectable(true)
+	nc.SetTextColor(tcell.GetColor("white"))
+	nc.SetReference(ref)
+}
+
+func (w *Window) AddToArticles(a *Article) {
+	if a == nil {
+		return
+	}
+	w.nArticles++
+
+	nc := tview.NewTableCell("")
+	nc.SetAlign(tview.AlignLeft)
+	w.articles.SetCell(w.nArticles, 0, nc)
+	nc.SetSelectable(false)
+	if a.read{
+		nc.SetText(w.c.theme.ReadMarker)
+	}
+
+	color := "white"
+	fc := tview.NewTableCell(fmt.Sprintf("[%s]%s", color, a.feed))
+	fc.SetTextColor(tcell.GetColor(color))
+	fc.SetAlign(tview.AlignLeft)
+	fc.SetMaxWidth(20)
+	w.articles.SetCell(w.nArticles, 1, fc)
+
+	tc := tview.NewTableCell(fmt.Sprintf("[%s]%s", w.c.theme.Title, a.title))
+	tc.SetTextColor(tcell.GetColor(w.c.theme.Title))
+	tc.SetSelectable(true)
+	tc.SetMaxWidth(80)
+	tc.SetAlign(tview.AlignLeft)
+	tc.SetReference(a)
+	w.articles.SetCell(w.nArticles, 2, tc)
+
+	dc := tview.NewTableCell(
+		fmt.Sprintf(
+			"[%s]%s", w.c.theme.Time, a.published.Format("2006-01-02 15:04:05"),
+		),
+	)
+	dc.SetTextColor(tcell.GetColor(w.c.theme.Date))
+	dc.SetAlign(tview.AlignLeft)
+	w.articles.SetCell(w.nArticles, 3, dc)
+}
+
+func (w *Window) RegisterSelectedFeedFunc(f func(r, c int)) {
+	w.feeds.SetSelectionChangedFunc(f)
+}
+
+func (w *Window) RegisterSelectedFunc(f func(r, c int)) {
+	w.articles.SetSelectedFunc(f)
+}
+
+func (w *Window) RegisterSelectionChangedFunc(f func(r, c int)) {
+	w.articles.SetSelectionChangedFunc(f)
 }

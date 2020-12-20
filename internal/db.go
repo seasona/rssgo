@@ -95,9 +95,10 @@ func (d *DB) CleanUp() {
 	}
 }
 
+// All will return map of article, key:feed titile, value:article
 func (d *DB) All() map[string][]Article {
 	amap := make(map[string][]Article)
-	for _, tname := range d.tableMap {
+	for feedTitle, tname := range d.tableMap {
 
 		st, err := d.db.Prepare(fmt.Sprintf("select id,feed,title,content,link,read,published from %v where deleted = false order by id", tname))
 		if err != nil {
@@ -129,7 +130,7 @@ func (d *DB) All() map[string][]Article {
 			if err != nil {
 				log.Println(err)
 			}
-			amap[tname] = append(amap[tname], Article{id: id, feed: feed, title: title, content: content, published: published, link: link, read: read})
+			amap[feedTitle] = append(amap[feedTitle], Article{id: id, feed: feed, title: title, content: content, published: published, link: link, read: read})
 		}
 	}
 	return amap

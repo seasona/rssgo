@@ -24,8 +24,7 @@ type Theme struct {
 	UnreadColumn       string   `json:"unreadColumn"`
 	PreviewText        string   `json:"previewText"`
 	PreviewLink        string   `json:"previewLink"`
-	UnreadMarker       string   `json:"unreadMarker"`
-	LinkMarker         string   `json:"linkMarker"`
+	ReadMarker         string   `json:"unreadMarker"`
 	FeedIcon           string   `json:"feedIcon"`
 	ArticleIcon        string   `json:"articleIcon"`
 	PreviewIcon        string   `json:"previewIcon"`

@@ -28,7 +28,6 @@
   "feedIcon": "🔖",
   "articleIcon": "🗞",
   "previewIcon": "📰",
-  "linkMarker": "🌍",
-  "unreadMarker": "🌟"
+  "readMarker": "🌟"
 }
 

@@ -84,17 +84,7 @@ func (c *Controller) UpdateFeeds() {
 				published: published,
 			}
 
-			exist := false
-			for _, e := range c.articles[f.title] {
-				if e.title == a.title {
-					exist = true
-					break
-				}
-			}
-
-			if !exist {
-				c.db.Save(a)
-			}
+			c.db.Save(a)
 		}
 	}
 }
@@ -106,6 +96,46 @@ func (c *Controller) GetAllArticleFromDB() {
 func (c *Controller) Quit() {
 	c.win.app.Stop()
 	os.Exit(0)
+}
+
+func (c *Controller) showFeeds() {
+	c.win.ClearFeeds()
+
+	for feedTitle, articles := range c.articles {
+		unread := 0
+		total := len(articles)
+
+		for _, article := range articles {
+			if !article.read {
+				unread++
+			}
+		}
+
+		c.win.AddToFeeds(feedTitle, unread, total, feedTitle)
+	}
+}
+
+func (c *Controller) showArticles(feedTitle string){
+
+}
+
+func (c *Controller) FeedSelectionChanged(row, col int) {
+	if row <= 0 {
+		return
+	}
+
+	r, _ := c.win.feeds.GetSelection()
+	cell := c.win.feeds.GetCell(r, 2)
+	ref := cell.GetReference()
+	if ref!=nil{
+
+	}
+}
+
+func (c *Controller) UpdateLoop() {
+	c.GetAllArticleFromDB()
+	go c.UpdateFeeds()
+	c.showFeeds()
 }
 
 func (c *Controller) InputFunc(event *tcell.EventKey) *tcell.EventKey {

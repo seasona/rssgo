@@ -6,7 +6,6 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
-	"golang.org/x/text/language/display"
 )
 
 type Window struct {
@@ -264,13 +263,7 @@ func (w *Window) SwitchFocus() {
 	f := w.app.GetFocus()
 	if f == w.feeds {
 		w.app.SetFocus(w.articles)
-	} else if f == w.articles {
-		if w.showPreview {
-			w.app.SetFocus(w.preview)
-		} else {
-			w.app.SetFocus(w.feeds)
-		}
-	} else if f == w.preview {
+	} else {
 		w.app.SetFocus(w.feeds)
 	}
 }
@@ -332,6 +325,7 @@ func (w *Window) ClearFeeds() {
 }
 
 func (w *Window) AddToFeeds(title string, unread, total int, ref string) {
+	w.nFeeds++
 	nc := tview.NewTableCell(fmt.Sprintf("%d", total))
 	nc.SetAlign(tview.AlignLeft)
 	w.feeds.SetCell(w.nFeeds, 0, nc)
@@ -353,6 +347,39 @@ func (w *Window) AddToFeeds(title string, unread, total int, ref string) {
 	nc.SetReference(ref)
 }
 
+func (w *Window) ClearArticles() {
+	w.nArticles = 0
+	w.articles.Clear()
+
+	ts := tview.NewTableCell("")
+	ts.SetAlign(tview.AlignLeft)
+	ts.Attributes |= tcell.AttrBold
+	//	ts.SetTextColor(tcell.ColorGreen)
+	ts.SetSelectable(false)
+	w.articles.SetCell(0, 0, ts)
+
+	ts = tview.NewTableCell("Feed")
+	ts.SetAlign(tview.AlignLeft)
+	ts.Attributes |= tcell.AttrBold
+	ts.SetTextColor(tcell.GetColor(w.c.theme.TableHead))
+	ts.SetSelectable(false)
+	w.articles.SetCell(0, 1, ts)
+
+	ts = tview.NewTableCell("Title")
+	ts.Attributes |= tcell.AttrBold
+	ts.SetTextColor(tcell.GetColor(w.c.theme.TableHead))
+	ts.SetSelectable(false)
+	w.articles.SetCell(0, 2, ts)
+
+	ts = tview.NewTableCell("Published")
+	ts.Attributes |= tcell.AttrBold
+	ts.SetTextColor(tcell.GetColor(w.c.theme.TableHead))
+	ts.SetSelectable(false)
+	w.articles.SetCell(0, 3, ts)
+
+	w.articles.SetSelectable(true, false)
+}
+
 func (w *Window) AddToArticles(a *Article) {
 	if a == nil {
 		return
@@ -363,7 +390,7 @@ func (w *Window) AddToArticles(a *Article) {
 	nc.SetAlign(tview.AlignLeft)
 	w.articles.SetCell(w.nArticles, 0, nc)
 	nc.SetSelectable(false)
-	if a.read{
+	if a.read {
 		nc.SetText(w.c.theme.ReadMarker)
 	}
 

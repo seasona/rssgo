@@ -51,7 +51,7 @@ func (r *RSS) getURLFromOPML(b opml.Outline) string {
 func (r *RSS) GetTitleURLFromOPML(opmlFile string) {
 	op, err := opml.NewOPMLFromFile(opmlFile)
 	if err != nil {
-		log.Fatal("Can't load opml file: ", r.c.conf.OPML)
+		log.Fatal("Can't load opml file: ", r.c.conf.OPML, err)
 	}
 
 	for _, b := range op.Body.Outlines {

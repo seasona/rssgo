@@ -34,6 +34,9 @@ func (c *Controller) Init(cfg, theme, dbFile string) {
 
 	c.win = &Window{}
 	c.win.Init(c, c.InputFunc)
+	c.win.RegisterSelectedFeedFunc(c.FeedSelectionChanged)
+
+	c.UpdateLoop()
 
 	c.win.Start()
 }
@@ -87,9 +90,12 @@ func (c *Controller) UpdateFeeds() {
 			c.db.Save(a)
 		}
 	}
+	c.lastUpdate = time.Now()
+	// update articles in controller every updateFeeds
+	c.GetAllArticlesFromDB()
 }
 
-func (c *Controller) GetAllArticleFromDB() {
+func (c *Controller) GetAllArticlesFromDB() {
 	c.articles = c.db.All()
 }
 
@@ -115,8 +121,12 @@ func (c *Controller) showFeeds() {
 	}
 }
 
-func (c *Controller) showArticles(feedTitle string){
-
+func (c *Controller) showArticles(feedTitle string) {
+	c.win.ClearArticles()
+	for _, article := range c.articles[feedTitle] {
+		c.win.AddToArticles(&article)
+	}
+	c.win.articles.ScrollToBeginning()
 }
 
 func (c *Controller) FeedSelectionChanged(row, col int) {
@@ -127,15 +137,22 @@ func (c *Controller) FeedSelectionChanged(row, col int) {
 	r, _ := c.win.feeds.GetSelection()
 	cell := c.win.feeds.GetCell(r, 2)
 	ref := cell.GetReference()
-	if ref!=nil{
-
+	if ref != nil {
+		c.showArticles(ref.(string))
 	}
 }
 
 func (c *Controller) UpdateLoop() {
-	c.GetAllArticleFromDB()
+	c.GetAllArticlesFromDB()
 	go c.UpdateFeeds()
 	c.showFeeds()
+	go func() {
+		updateWin := time.NewTicker(10 * time.Second)
+		select {
+		case <-updateWin.C:
+			c.showFeeds()
+		}
+	}()
 }
 
 func (c *Controller) InputFunc(event *tcell.EventKey) *tcell.EventKey {

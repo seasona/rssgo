@@ -148,9 +148,11 @@ func (c *Controller) UpdateLoop() {
 	c.showFeeds()
 	go func() {
 		updateWin := time.NewTicker(10 * time.Second)
-		select {
-		case <-updateWin.C:
-			c.showFeeds()
+		for{
+			select {
+			case <-updateWin.C:
+				c.showFeeds()
+			}
 		}
 	}()
 }

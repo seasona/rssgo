@@ -2,10 +2,12 @@ package internal
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
+	"jaytaylor.com/html2text"
 )
 
 type Window struct {
@@ -419,14 +421,61 @@ func (w *Window) AddToArticles(a *Article) {
 	w.articles.SetCell(w.nArticles, 3, dc)
 }
 
-func (w *Window) RegisterSelectedFeedFunc(f func(r, c int)) {
+func (w *Window) ArticlesHasFocus() bool {
+	if w.app.GetFocus() == w.articles {
+		return true
+	}
+	return false
+}
+
+func (c *Controller) GetArticleForSelection() *Article {
+	if !c.win.ArticlesHasFocus() {
+		return nil
+	}
+
+	var cell *tview.TableCell
+
+	r, _ := c.win.articles.GetSelection()
+	cell = c.win.articles.GetCell(r, 2)
+	ref := cell.GetReference()
+	if ref != nil {
+		return ref.(*Article)
+	}
+	return nil
+}
+
+func (w *Window) AddToPreview(a *Article) {
+	parsed, err := html2text.FromString(a.content, html2text.Options{PrettyTables: true})
+	if err != nil {
+		log.Printf("Failed to parse html to text, rendering original.")
+		parsed = a.content
+	}
+
+	w.preview.Clear()
+
+	text := fmt.Sprintf(
+		"[%s][%s][%s] %s [white]([%s]%s[white])\n\n[%s]%s\n\nLink: [%s]%s",
+		"white",
+		a.feed,
+		w.c.theme.Title,
+		a.title,
+		w.c.theme.Date,
+		a.published,
+		w.c.theme.PreviewText,
+		parsed,
+		w.c.theme.PreviewLink,
+		a.link,
+	)
+	w.preview.SetText(text)
+	w.preview.ScrollToBeginning()
+}
+
+func (w *Window) FeedSelectedFunc(f func(r, c int)) {
+	w.feeds.SetSelectedFunc(f)
 	w.feeds.SetSelectionChangedFunc(f)
 }
 
-func (w *Window) RegisterSelectedFunc(f func(r, c int)) {
+func (w *Window) ArticleSelectedFunc(f func(r, c int)) {
 	w.articles.SetSelectedFunc(f)
-}
-
-func (w *Window) RegisterSelectionChangedFunc(f func(r, c int)) {
 	w.articles.SetSelectionChangedFunc(f)
 }

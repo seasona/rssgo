@@ -34,7 +34,9 @@ func (c *Controller) Init(cfg, theme, dbFile string) {
 
 	c.win = &Window{}
 	c.win.Init(c, c.InputFunc)
-	c.win.RegisterSelectedFeedFunc(c.FeedSelectionChanged)
+	//todo the first selected feed can't show articels
+	c.win.FeedSelectedFunc(c.SelectFeed)
+	c.win.ArticleSelectedFunc(c.SelectArticle)
 
 	c.UpdateLoop()
 
@@ -123,13 +125,15 @@ func (c *Controller) showFeeds() {
 
 func (c *Controller) showArticles(feedTitle string) {
 	c.win.ClearArticles()
-	for _, article := range c.articles[feedTitle] {
-		c.win.AddToArticles(&article)
+	// be carefull of the trap of range of golang, range will pass a value not a reference,
+	// so the pointer to range loop is always same
+	for i := 0; i < len(c.articles[feedTitle]); i++ {
+		c.win.AddToArticles(&c.articles[feedTitle][i])
 	}
 	c.win.articles.ScrollToBeginning()
 }
 
-func (c *Controller) FeedSelectionChanged(row, col int) {
+func (c *Controller) SelectFeed(row, col int) {
 	if row <= 0 {
 		return
 	}
@@ -142,19 +146,32 @@ func (c *Controller) FeedSelectionChanged(row, col int) {
 	}
 }
 
+func (c *Controller) SelectArticle(row, col int) {
+	if row < 0 {
+		return
+	}
+
+	c.win.preview.Clear()
+
+	ref := c.win.c.GetArticleForSelection()
+	if ref != nil {
+		c.win.AddToPreview(ref)
+	}
+}
+
 func (c *Controller) UpdateLoop() {
 	c.GetAllArticlesFromDB()
 	go c.UpdateFeeds()
 	c.showFeeds()
-	go func() {
-		updateWin := time.NewTicker(10 * time.Second)
-		for{
-			select {
-			case <-updateWin.C:
-				c.showFeeds()
-			}
-		}
-	}()
+	// go func() {
+	// 	updateWin := time.NewTicker(10 * time.Second)
+	// 	for {
+	// 		select {
+	// 		case <-updateWin.C:
+	// 			c.showFeeds()
+	// 		}
+	// 	}
+	// }()
 }
 
 func (c *Controller) InputFunc(event *tcell.EventKey) *tcell.EventKey {

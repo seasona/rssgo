@@ -13,6 +13,7 @@
     "keyHelp": "h",
     "keyPreview": "p",
     "keyMarkArticle": "Enter",
+    "keyOpenLink": "o",
     "daysKeepDeletedArticle": 7,
     "daysKeepReadArticle": 10,
     "skipArticlesOlderThanDays": 30,

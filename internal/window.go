@@ -479,3 +479,33 @@ func (w *Window) ArticleSelectedFunc(f func(r, c int)) {
 	w.articles.SetSelectedFunc(f)
 	w.articles.SetSelectionChangedFunc(f)
 }
+
+func (w *Window) MoveUp() {
+	if w.app.GetFocus() == w.feeds {
+		r, c := w.feeds.GetSelection()
+		if r > 1 {
+			w.feeds.Select(r-1, c)
+		}
+	} else if w.app.GetFocus() == w.articles {
+		r, c := w.articles.GetSelection()
+		if r > 1 {
+			w.articles.Select(r-1, c)
+		}
+	}
+}
+
+func (w *Window) MoveDown() {
+	if w.app.GetFocus() == w.feeds {
+		cnt := w.feeds.GetRowCount()
+		r, c := w.feeds.GetSelection()
+		if r < cnt-1 {
+			w.feeds.Select(r+1, c)
+		}
+	} else if w.app.GetFocus() == w.articles {
+		cnt := w.articles.GetRowCount()
+		r, c := w.articles.GetSelection()
+		if r < cnt-1 {
+			w.articles.Select(r+1, c)
+		}
+	}
+}

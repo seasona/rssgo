@@ -20,6 +20,7 @@ type Config struct {
 	KeyHelp                   string              `json:"keyHelp"`
 	KeyPreview                string              `json:"keyPreview"`
 	KeyMarkArticle            string              `json:"keyMarkArticle"`
+	KeyOpenLink               string              `json:"keyOpenLink"`
 	DaysKeepDeletedArticle    int                 `json:"daysKeepDeletedArticle"`
 	DaysKeepReadArticle       int                 `json:"daysKeepReadArticle"`
 	SkipArticlesOlderThanDays int                 `json:"skipArticlesOlderThanDays"`
@@ -59,23 +60,15 @@ func (c *Config) LoadConfig(file string) {
 func (c *Config) GetConfigKeys() map[string]string {
 	keys := make(map[string]string)
 
-	//keys["Open Link"] = c.KeyOpenLink
-	//keys["Mark Link"] = c.KeyMarkLink
-	//keys["Open Marked"] = c.KeyOpenMarked
+	keys["Open Link"] = c.KeyOpenLink
+	keys["Mark Article"] = c.KeyMarkArticle
 	//keys["Delete"] = c.KeyDeleteArticle
 	keys["Up"] = c.KeyMoveUp
 	keys["Down"] = c.KeyMoveDown
-	//keys["Sort by date"] = c.KeySortByDate
-	//keys["Sort by feed"] = c.KeySortByFeed
-	//keys["Sort by title"] = c.KeySortByTitle
-	//keys["Sort by unread"] = c.KeySortByUnread
 	keys["Toggle Preview"] = c.KeyPreview
 	//keys["Mark All Read"] = c.KeyMarkAllRead
 	//keys["Mark All UnRead"] = c.KeyMarkAllUnread
 	keys["Toggle Help"] = c.KeyHelp
-	//keys["Select Feed Window"] = c.KeySelectFeedWindow
-	//keys["Select Article Window"] = c.KeySelectArticleWindow
-	//keys["Select Preview Window"] = c.KeySelectPreviewWindow
 	//keys["Update Feeds"] = c.KeyUpdateFeeds
 	keys["Switch Windows"] = c.KeySwitchWindows
 	keys["Quit"] = c.KeyQuit

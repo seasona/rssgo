@@ -3,9 +3,10 @@ package internal
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"time"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type DB struct {
@@ -64,6 +65,7 @@ func (d *DB) CreateTables(rss *RSS) {
 	}
 }
 
+// CleanUp will remove deleted and read articles from database
 func (d *DB) CleanUp() {
 	for _, tname := range d.tableMap {
 		// sqlite3 is not support bool, but go-sqlite3 can transform bool to 1 or 0
@@ -178,7 +180,7 @@ func (d *DB) Delete(a Article) {
 	}
 }
 
-func (d *DB) MarkRead(a Article) {
+func (d *DB) MarkRead(a *Article) {
 	tname := d.tableMap[a.feed]
 	st, err := d.db.Prepare(fmt.Sprintf("update %v set read = true where id = ?", tname))
 	if err != nil {
@@ -191,7 +193,7 @@ func (d *DB) MarkRead(a Article) {
 	}
 }
 
-func (d *DB) MarkUnread(a Article) {
+func (d *DB) MarkUnread(a *Article) {
 	tname := d.tableMap[a.feed]
 	st, err := d.db.Prepare(fmt.Sprintf("update %v set read = false where id = ?", tname))
 	if err != nil {

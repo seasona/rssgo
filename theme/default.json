@@ -25,9 +25,9 @@
   "statusText": "#d0d0d1",
   "statusKey": "#FFFFFF",
   "statusBrackets": "#0f8697",
-  "feedIcon": "🔖",
-  "articleIcon": "🗞",
-  "previewIcon": "📰",
-  "readMarker": "🌟"
+  "feedIcon": "🎉",
+  "articleIcon": "📖",
+  "previewIcon": "📃",
+  "readMarker": "✔️"
 }
 

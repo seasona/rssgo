@@ -1,7 +1,11 @@
 package internal
 
 import (
+	"log"
 	"os"
+	"os/exec"
+	"runtime"
+	"sort"
 	"strings"
 	"time"
 
@@ -31,6 +35,7 @@ func (c *Controller) Init(cfg, theme, dbFile string) {
 	// db depends on rss feed, so must initialize behind it
 	c.db = &DB{}
 	c.db.Init(c, dbFile)
+	c.db.CleanUp()
 
 	c.win = &Window{}
 	c.win.Init(c, c.InputFunc)
@@ -95,6 +100,7 @@ func (c *Controller) UpdateFeeds() {
 	c.lastUpdate = time.Now()
 	// update articles in controller every updateFeeds
 	c.GetAllArticlesFromDB()
+	c.showFeeds()
 }
 
 func (c *Controller) GetAllArticlesFromDB() {
@@ -106,14 +112,52 @@ func (c *Controller) Quit() {
 	os.Exit(0)
 }
 
+func (c *Controller) GetSelectedArticle() *Article {
+	if c.win.app.GetFocus() != c.win.articles {
+		return nil
+	}
+
+	r, _ := c.win.articles.GetSelection()
+	cell := c.win.articles.GetCell(r, 2)
+
+	ref := cell.GetReference()
+	if ref != nil {
+		return ref.(*Article)
+	}
+	return nil
+}
+
+func (c *Controller) OpenLink(link string) {
+	var err error
+
+	switch runtime.GOOS {
+	case "linux":
+		err = exec.Command("xdg-open", link).Start()
+	case "windows":
+		err = exec.Command("rundll32", "url.dll,FileProtocolHandler", link).Start()
+	}
+	if err != nil {
+		log.Println(err)
+	}
+}
+
 func (c *Controller) showFeeds() {
 	c.win.ClearFeeds()
 
-	for feedTitle, articles := range c.articles {
-		unread := 0
-		total := len(articles)
+	var feeds []string
 
-		for _, article := range articles {
+	for feed := range c.articles {
+		feeds = append(feeds, feed)
+	}
+
+	// keep ordinal of Feeds
+	sort.Strings(feeds)
+
+	for _, feedTitle := range feeds {
+		unread := 0
+		total := len(c.articles[feedTitle])
+
+		for _, article := range c.articles[feedTitle] {
 			if !article.read {
 				unread++
 			}
@@ -159,19 +203,29 @@ func (c *Controller) SelectArticle(row, col int) {
 	}
 }
 
+func (c *Controller) MarkArticle() {
+	a := c.GetSelectedArticle()
+	if a == nil {
+		return
+	}
+	r, _ := c.win.articles.GetSelection()
+	cell := c.win.articles.GetCell(r, 0)
+	if a.read {
+		c.db.MarkUnread(a)
+		cell.SetText("")
+	} else {
+		c.db.MarkRead(a)
+		cell.SetText(c.theme.ReadMarker)
+	}
+	a.read = !a.read
+	// update unread in Feeds
+	c.showFeeds()
+}
+
 func (c *Controller) UpdateLoop() {
 	c.GetAllArticlesFromDB()
 	go c.UpdateFeeds()
 	c.showFeeds()
-	// go func() {
-	// 	updateWin := time.NewTicker(10 * time.Second)
-	// 	for {
-	// 		select {
-	// 		case <-updateWin.C:
-	// 			c.showFeeds()
-	// 		}
-	// 	}
-	// }()
 }
 
 func (c *Controller) InputFunc(event *tcell.EventKey) *tcell.EventKey {
@@ -190,6 +244,17 @@ func (c *Controller) InputFunc(event *tcell.EventKey) *tcell.EventKey {
 		c.win.TriggerPreview()
 	case c.conf.KeyQuit:
 		c.Quit()
+	case c.conf.KeyMoveUp:
+		c.win.MoveUp()
+	case c.conf.KeyMoveDown:
+		c.win.MoveDown()
+	case c.conf.KeyOpenLink:
+		a := c.GetSelectedArticle()
+		if a != nil {
+			c.OpenLink(a.link)
+		}
+	case c.conf.KeyMarkArticle:
+		c.MarkArticle()
 	default:
 		return event
 	}

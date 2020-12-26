@@ -116,9 +116,9 @@ func (w *Window) InitHelpWindow() {
 func (w *Window) InitStatusWindow() {
 	w.status = tview.NewTable()
 	w.status.SetBackgroundColor(tcell.GetColor(w.c.theme.StatusBackground))
-	w.status.SetFixed(1, 6)
+	w.status.SetFixed(1, 4)
 
-	for i := 0; i < 7; i++ {
+	for i := 0; i < 5; i++ {
 		ts := tview.NewTableCell("")
 		ts.SetAlign(tview.AlignLeft)
 		ts.Attributes |= tcell.AttrBold
@@ -147,32 +147,7 @@ func (w *Window) UpdateStatus() {
 		w.c.lastUpdate.Format("15:04"),
 		w.c.theme.StatusBrackets))
 
-	// todo need to update all articles and unread number
-	// total articles
 	c = w.status.GetCell(0, 2)
-	c.SetText(
-		fmt.Sprintf(
-			"[%s][[%s]Total Articles: [%s]%d[%s]]",
-			w.c.theme.StatusBrackets,
-			w.c.theme.StatusKey,
-			w.c.theme.StatusText,
-			0,
-			w.c.theme.StatusBrackets))
-
-	// unread number
-	c = w.status.GetCell(0, 3)
-	c.SetText(
-		fmt.Sprintf(
-			"[%s][[%s]Total Unread: [%s]%d[%s]]",
-			w.c.theme.StatusBrackets,
-			w.c.theme.StatusKey,
-			w.c.theme.StatusText,
-			0,
-			w.c.theme.StatusBrackets,
-		),
-	)
-
-	c = w.status.GetCell(0, 4)
 	c.SetText(
 		fmt.Sprintf(
 			"[%s][[%s]Feeds: [%s]%d[%s]]",
@@ -184,7 +159,7 @@ func (w *Window) UpdateStatus() {
 		),
 	)
 
-	c = w.status.GetCell(0, 5)
+	c = w.status.GetCell(0, 3)
 	c.SetText(
 		fmt.Sprintf(
 			"[%s][[%s]Help: [%s]%s[%s]]",
@@ -196,7 +171,7 @@ func (w *Window) UpdateStatus() {
 		),
 	)
 
-	c = w.status.GetCell(0, 6)
+	c = w.status.GetCell(0, 4)
 	c.SetText(
 		fmt.Sprintf(
 			"[%s][[%s]Version: [%s]%s[%s]]",

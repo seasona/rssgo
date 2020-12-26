@@ -25,6 +25,8 @@ func main() {
 	logFile := flag.String("log", defaultLog, "Log file")
 	version := flag.Bool("version", false, "Show version")
 
+	flag.Parse()
+
 	if *version {
 		fmt.Printf("rssgo version: %s", "v0.1.0")
 		os.Exit(0)

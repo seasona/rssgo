@@ -59,7 +59,7 @@ func (c *Config) LoadConfig(file string) {
 
 func (c *Config) GetConfigKeys() map[string]string {
 	keys := make(map[string]string)
-
+	
 	keys["Open Link"] = c.KeyOpenLink
 	keys["Mark Article"] = c.KeyMarkArticle
 	//keys["Delete"] = c.KeyDeleteArticle

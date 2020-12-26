@@ -105,6 +105,16 @@ func (c *Controller) UpdateFeeds() {
 
 func (c *Controller) GetAllArticlesFromDB() {
 	c.articles = c.db.All()
+	// sort by time and isread
+	for key := range c.articles {
+		sort.Slice(c.articles[key], func(i, j int) bool {
+			if c.articles[key][i].read != c.articles[key][j].read {
+				return c.articles[key][j].read
+			} else {
+				return c.articles[key][i].published.After(c.articles[key][j].published)
+			}
+		})
+	}
 }
 
 func (c *Controller) Quit() {

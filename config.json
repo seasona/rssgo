@@ -1,5 +1,5 @@
 {
-    "opml": "",
+    "opml": "test/testdata/feedly.opml",
     "feeds": [
         {
             "title": "The Verge",
